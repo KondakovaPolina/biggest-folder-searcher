@@ -1,4 +1,5 @@
 import java.math.BigInteger;
+import java.util.HashMap;
 
 public class SizeCalculator {
 
@@ -41,21 +42,20 @@ public class SizeCalculator {
     //TODO: Либо 24B, 234K, 24M, 34G, 42T
     // 235K => 240640
     public static long getSizeFromHumanReadable(String size) {
-        long sum = 0;
-        String result = size.replaceAll("[^0-9\\s]", "");
-        String[] words = result.split("[\\s]");
+        HashMap<Character, Integer> char2multiplier = getMultipliers();
+        char sizeFactor = size.replaceAll("[0-9\\s]+", "").charAt(0);
+        int multiplier = char2multiplier.get(sizeFactor);
+        long length = multiplier * Long.valueOf(size.replaceAll("[^0-9]", ""));
 
-        for (int i = 0; i < words.length / 2; i++) {
-            String letter = words[i];
-            words[i] = words[words.length - i - 1];
-            words[words.length - i - 1] = letter;
+        return length;
+    }
+
+    private static HashMap<Character, Integer> getMultipliers() {
+        char[] multipliers = {'B', 'K', 'M', 'G', 'T'};
+        HashMap<Character, Integer> char2multiplier = new HashMap<>();
+        for (int i = 0; i < multipliers.length; i++) {
+            char2multiplier.put(multipliers[i], (int) Math.pow(1024, i));
         }
-
-        for (int i = 1; i < words.length; i++) {
-            sum += Long.parseLong(words[i]) * BigInteger.valueOf(kiloFactor).pow(i + 1).longValue();
-            sum = sum + Long.parseLong(words[0]);
-        }
-
-        return sum;
+        return char2multiplier;
     }
 }
